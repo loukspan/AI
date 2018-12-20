@@ -32,7 +32,7 @@ for pair in parsed_test.getroot():
         pd.Series([gr, mp, pq, src, cnd], index=df_columns), ignore_index=True)
 
 y_train = df_train[['GR']]
-y_a = df_train['GR']
+y_hiddenTest = df_test['GR']
 
 #drops grammar
 df_train.drop(df_test.columns[[0]], axis=1, inplace=True)
@@ -46,9 +46,6 @@ for i in missing:
     X_test[i] = 0
 X_test = X_test[X_train.columns]
 
-print(X_test.shape)
-print(X_train.shape)
-
 from sklearn.tree import DecisionTreeClassifier
 
 #Svc
@@ -56,13 +53,16 @@ dtc = DecisionTreeClassifier()
 dtc.fit(X_train, y_train)
 y_pred = dtc.predict(X_test)
 
-y_a = y_a.values.tolist()
-print(y_a)
+y_hiddenTest = y_hiddenTest.values.tolist()
+print(y_hiddenTest)
 print(y_pred)
 
 x = 0
-for item in y_a:
-    for item1 in y_pred:
-        if item == item1:
-            x += 1
-print(x)
+sum = 0
+
+for gr in y_pred:
+    if gr == y_hiddenTest[x]:
+        sum += 1
+    x += 1
+
+print(sum)
