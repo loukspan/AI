@@ -31,21 +31,25 @@ for pair in parsed_test.getroot():
     df_test = df_test.append(
         pd.Series([gr, mp, pq, src, cnd], index=df_columns), ignore_index=True)
 
+#save grammar
 y_train = df_train[['GR']]
 y_hiddenTest = df_test['GR']
 
-#drops grammar
+#hide grammar
 df_train.drop(df_test.columns[[0]], axis=1, inplace=True)
 df_test.drop(df_test.columns[[0]], axis=1, inplace=True)
 
+#unique strings
 X_train = pd.get_dummies(df_train, columns=['SRC', 'CND'])
 X_test = pd.get_dummies(df_test, columns=['SRC', 'CND'])
 
+# both train and test have to have same number of columns
 missing = set(X_train.columns)-set(X_test.columns)
 for i in missing:
     X_test[i] = 0
 X_test = X_test[X_train.columns]
 
+#Bayes goes here
 from sklearn.tree import DecisionTreeClassifier
 
 #Svc
@@ -53,16 +57,16 @@ dtc = DecisionTreeClassifier()
 dtc.fit(X_train, y_train)
 y_pred = dtc.predict(X_test)
 
+#Compare hidden column with prediction column
 y_hiddenTest = y_hiddenTest.values.tolist()
-print(y_hiddenTest)
-print(y_pred)
 
-x = 0
 sum = 0
-
+x = 0
 for gr in y_pred:
     if gr == y_hiddenTest[x]:
         sum += 1
-    x += 1
 
-print(sum)
+rate = int((sum*100)/1935)
+
+#Print rate
+print('We got ', rate, ' %')
